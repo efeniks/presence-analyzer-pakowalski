@@ -53,21 +53,31 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertDictEqual(data[0], {u'user_id': 10, u'name': u'User 10'})
 
     def test_mean_time_weekday_view(self):
-        mean_time_data = views.mean_time_weekday_view(10)
-        self.assertEqual(mean_time_data.content_type, 'application/json')
-        data = json.loads(mean_time_data.data)
-        self.assertTrue(data)
-        if mean_time_data is not None:
-            self.assertNotEqual(mean_time_data.status_code, 404)
+        mean_time_url = '/api/v1/mean_time_weekday/<int:user_id>'
+        mean_time_data = self.client.get(mean_time_url)
+        self.assertEqual(mean_time_data.content_type, 'text/html')
+
+        # 404 status code case
+        self.assertTrue(mean_time_data)
+        self.assertEqual(mean_time_data.status_code, 404,
+                         'Invalid status code value received.')
+        # 200 status code case
+        mean_time_data = views.presence_weekday_view(11)
+        self.assertTrue(mean_time_data)
         self.assertEqual(mean_time_data.status_code, 200)
 
     def test_presence_weekday_view(self):
-        presence_data = views.presence_weekday_view(10)
-        self.assertEqual(presence_data.content_type, 'application/json')
-        data = json.loads(presence_data.data)
-        self.assertTrue(data)
-        if presence_data is not None:
-            self.assertNotEqual(presence_data.status_code, 404)
+        presence_url = '/api/v1/presence_weekday/<int:user_id>'
+        presence_data = self.client.get(presence_url)
+        self.assertEqual(presence_data.content_type, 'text/html')
+
+        # 404 status code case
+        self.assertTrue(presence_data)
+        self.assertEqual(presence_data.status_code, 404,
+                         'Invalid status code value received.')
+        # 200 status code case
+        presence_data = views.presence_weekday_view(11)
+        self.assertTrue(presence_data)
         self.assertEqual(presence_data.status_code, 200)
 
 
