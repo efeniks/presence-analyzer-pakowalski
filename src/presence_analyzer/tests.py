@@ -56,17 +56,18 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         mean_time_data = views.mean_time_weekday_view(10)
         self.assertEqual(mean_time_data.content_type, 'application/json')
         data = json.loads(mean_time_data.data)
-        self.assertNotEqual(len(data), 0)
-        self.assertNotEqual(mean_time_data.status_code, 404)
+        self.assertTrue(data)
+        if mean_time_data is not None:
+            self.assertNotEqual(mean_time_data.status_code, 404)
         self.assertEqual(mean_time_data.status_code, 200)
 
     def test_presence_weekday_view(self):
-        # import ipdb; ipdb.set_trace()
         presence_data = views.presence_weekday_view(10)
         self.assertEqual(presence_data.content_type, 'application/json')
         data = json.loads(presence_data.data)
-        self.assertNotEqual(len(data), 0)
-        self.assertNotEqual(presence_data.status_code, 404)
+        self.assertTrue(data)
+        if presence_data is not None:
+            self.assertNotEqual(presence_data.status_code, 404)
         self.assertEqual(presence_data.status_code, 200)
 
 

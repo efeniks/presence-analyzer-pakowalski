@@ -101,5 +101,4 @@ def mean(items):
     """
     Calculates arithmetic mean. Returns zero for empty lists.
     """
-    # import ipdb; ipdb.set_trace()
     return float(sum(items)) / len(items) if len(items) > 0 else 0
