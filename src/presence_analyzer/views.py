@@ -60,6 +60,7 @@ def presence_weekday_view(user_id):
     """
     Returns total presence time of given user grouped by weekday.
     """
+    # import ipdb; ipdb.set_trace()
     data = get_data()
     if user_id not in data:
         log.debug('User %s not found!', user_id)
@@ -71,5 +72,6 @@ def presence_weekday_view(user_id):
         for weekday, intervals in enumerate(weekdays)
     ]
 
-    result.insert(0, ('Weekday', 'Presence (s)'))
+    result.insert(0, 
+                 ('Weekday', 'Presence (s)'))
     return result
