@@ -7,7 +7,9 @@ import calendar
 from flask import redirect, abort
 
 from presence_analyzer.main import app
-from presence_analyzer.utils import jsonify, get_data, mean, group_by_weekday
+from presence_analyzer.utils import (
+    jsonify, get_data, mean, group_by_weekday, interval, seconds_since_midnight
+)
 
 import logging
 log = logging.getLogger(__name__)  # pylint: disable=invalid-name
@@ -72,4 +74,36 @@ def presence_weekday_view(user_id):
     ]
 
     result.insert(0, ('Weekday', 'Presence (s)'))
+    return result
+
+
+@app.route('/api/v1/presence_start_end/<int:user_id>', methods=['GET'])
+@jsonify
+def presence_start_end_view(user_id):
+    """
+
+    """
+    data = get_data()
+    if user_id not in data:
+        log.debug('User %s not found!', user_id)
+        abort(404)
+
+    starts = data[user_id].keys()
+    ends = data[user_id].keys()
+    start_list = []
+    for start in starts:
+        start1 = data[user_id][start]['start']
+        start_list.append(seconds_since_midnight(start1))
+
+    end_list = []
+    for end in ends:
+        end1 = data[user_id][end]['end']
+        end_list.append(seconds_since_midnight(end1))
+
+    mean_start = mean(start_list)
+    mean_end = mean(end_list)
+
+    result = {'Start': mean_start/24, 'End': mean_end/24}
+    # import ipdb; ipdb.set_trace()
+
     return result
