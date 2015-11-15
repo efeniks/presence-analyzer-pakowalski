@@ -3,10 +3,11 @@
 Helper functions used in views.
 """
 
+from datetime import datetime
 import csv
+
 from json import dumps
 from functools import wraps
-from datetime import datetime
 
 from flask import Response
 
@@ -102,3 +103,11 @@ def mean(items):
     Calculates arithmetic mean. Returns zero for empty lists.
     """
     return float(sum(items)) / len(items) if len(items) > 0 else 0
+
+
+def mean_date(items):
+    seconds = (sum(items) / (len(items)-1))
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    result_date = str(datetime(2008, 11, 22, h, m, s))
+    return result_date
