@@ -74,11 +74,14 @@
     </style>
 
     <script src="/static/js/jquery.min.js"></script>
+    <script src="http://momentjs.com/downloads/moment.js"></script>
+     
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
-        google.load("visualization", "1", {packages:["corechart"], 'language': 'en'});
-
-        (function($) {
+        google.load("visualization", "1", {packages:["corechart", "timeline"], 'language': 'pl'});
+    </script>
+    <script type="text/javascript">
+            (function($) {
             $(document).ready(function(){
                 var loading = $('#loading');
                 $.getJSON("/api/v1/users", function(result) {
@@ -95,18 +98,48 @@
                     if(selected_user) {
                         loading.show();
                         chart_div.hide();
-                        $.getJSON("/api/v1/presence_weekday/"+selected_user, function(result) {
-                            var data = google.visualization.arrayToDataTable(result);
-                            var options = {};
+                        $.getJSON("/api/v1/presence_start_end/"+selected_user, function(result) {
+                            $.each(result, function(index, value) {
+                                result[0][1] = new Date(result[0][1]);
+                                result[0][2] = new Date(result[0][2]);
+                                result[1][1] = new Date(result[1][1]);
+                                result[1][2] = new Date(result[1][2]);
+                                result[2][1] = new Date(result[2][1]);
+                                result[2][2] = new Date(result[2][2]);
+                                result[3][1] = new Date(result[3][1]);
+                                result[3][2] = new Date(result[3][2]);
+                                result[4][1] = new Date(result[4][1]);
+                                result[4][2] = new Date(result[4][2]);
+                                result[5][1] = new Date(result[5][1]);
+                                result[5][2] = new Date(result[5][2]);
+                                result[6][1] = new Date(result[6][1]);
+                                result[6][2] = new Date(result[6][2]);
+                            });
+                            
+                            console.log(result);
+                            var data = new google.visualization.DataTable();
+                            data.addColumn('string', 'Weekday');
+                            data.addColumn({ type: 'datetime', id: 'Start' });
+                            data.addColumn({ type: 'datetime', id: 'End' });
+                            data.addRows(result);
+                            var options = {
+                            hAxis: {title: 'Weekday'}
+                            };
+                        
+                            var formatter = new google.visualization.DateFormat({pattern: 'HH:mm:ss'});
+                            formatter.format(data, 1);
+                            formatter.format(data, 2);
                             chart_div.show();
                             loading.hide();
-                            var chart = new google.visualization.PieChart(chart_div[0]);
+                            var chart = new google.visualization.Timeline(chart_div[0]);
                             chart.draw(data, options);
-                        });
+                            debugger;
+                        });            
                     }
                 });
             });
         })(jQuery);
+    </script>
     </script>
 </head>
 
@@ -116,14 +149,13 @@
             <h1>Presence analyzer</h1>
             
             <ul>
-                <li id="selected"><a href="/static/presence_weekday.html">Presence by weekday</a></li>
+                <li><a href="/static/presence_weekday.html">Presence by weekday</a></li>
                 <li><a href="/static/mean_time_weekday.html">Presence mean time</a></li>
-                <li><a href="/static/presence_start_end.html">Presence 
-                start-end</a></li>
+                <li id="selected"><a href="/static/presence_start_end.html">Presence start-end</a></li>
             </ul>
         </div>
         <div id="content">
-            <h2>Presence by weekday</h2>
+            <h2>Presence start-end weekday</h2>
             <p>
                 <select id="user_id" style="display: none">
                     <option value="">--</option>
@@ -138,4 +170,3 @@
 
     </div>
 </body>
-</html>
