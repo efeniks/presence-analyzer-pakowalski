@@ -2,6 +2,7 @@
 """
 Helper functions used in views.
 """
+from __future__ import division
 
 from datetime import datetime
 import csv
@@ -106,8 +107,17 @@ def mean(items):
 
 
 def mean_date(items):
-    seconds = (sum(items) / (len(items)-1))
+    try:
+        seconds = (sum(items) / (len(items)-1))
+    except ZeroDivisionError:
+        seconds = 0
+
     m, s = divmod(seconds, 60)
     h, m = divmod(m, 60)
-    result_date = str(datetime(2008, 11, 22, h, m, s))
-    return result_date
+    if h > 23:
+        h = h - 23
+        result_date = str(datetime(2008, 11, 23, int(h), int(m), int(s)))
+    else:
+        result_date = str(datetime(2008, 11, 22, int(h), int(m), int(s)))
+    result = result_date.replace('-', '/')
+    return result

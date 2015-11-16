@@ -100,33 +100,20 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         presence_data = self.client.get('/api/v1/presence_weekday/9')
         self.assertEqual(presence_data.status_code, 404)
 
-    def test_mean_time_weekday_view(self):
-        mean_time_url = '/api/v1/mean_time_weekday/<int:user_id>'
-        mean_time_data = self.client.get(mean_time_url)
-        self.assertEqual(mean_time_data.content_type, 'text/html')
+    def test_presence_start_end_view(self):
+        start_end_data = self.client.get('/api/v1/presence_start_end/10')
+        self.assertEqual(start_end_data.content_type, 'application/json')
+        self.assertEqual(start_end_data.status_code, 200)
+        data = json.loads(start_end_data.data)
+        self.assertItemsEqual(data[0], [
+            'Mon',
+            '2008/11/22 00:00:00',
+            '2008/11/22 00:00:00'
+            ])
 
-        # 404 status code case
-        self.assertTrue(mean_time_data)
-        self.assertEqual(mean_time_data.status_code, 404,
-                         'Invalid status code value received.')
-        # 200 status code case
-        mean_time_data = views.presence_weekday_view(11)
-        self.assertTrue(mean_time_data)
-        self.assertEqual(mean_time_data.status_code, 200)
-
-    def test_presence_weekday_view(self):
-        presence_url = '/api/v1/presence_weekday/<int:user_id>'
-        presence_data = self.client.get(presence_url)
-        self.assertEqual(presence_data.content_type, 'text/html')
-
-        # 404 status code case
-        self.assertTrue(presence_data)
-        self.assertEqual(presence_data.status_code, 404,
-                         'Invalid status code value received.')
-        # 200 status code case
-        presence_data = views.presence_weekday_view(11)
-        self.assertTrue(presence_data)
-        self.assertEqual(presence_data.status_code, 200)
+    def test_presence_start_end_view_404(self):
+        start_end_data = self.client.get('/api/v1/presence_start_end/9')
+        self.assertEqual(start_end_data.status_code, 404)
 
 
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
@@ -162,19 +149,6 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         )
 
     def test_group_by_weekday(self):
-<<<<<<< HEAD
-        group_data = utils.group_by_weekday(
-            {datetime.date(2012, 11, 20):
-                {'end': datetime.time(17, 0, 42),
-                 'start': datetime.time(8, 19, 37)}}
-        )
-        self.assertIsInstance(group_data, list)
-        self.assertIsNotNone(group_data)
-        self.assertIn(group_data[1] or group_data[2] or group_data[3],
-                      [[x] for x in range(31265, 31280)])
-        self.assertEqual(
-            len(group_data), 7
-=======
         sample_data = utils.get_data()
         group_data = utils.group_by_weekday(sample_data[10])
         self.assertEqual(
@@ -184,34 +158,10 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         self.assertEqual(
             group_data,
             [[24123], [16564], [25321], [22969, 22999], [6426], [], []]
->>>>>>> 8e9f1a211f3eae65f2eabbb8136192add006c466
         )
 
     def test_seconds_since_midnight(self):
         mid_data = utils.seconds_since_midnight(datetime.time(17, 0, 42))
-<<<<<<< HEAD
-        self.assertIsInstance(mid_data, int)
-        self.assertIn(mid_data, [y for y in range(60500, 61500)])
-        self.assertIsNotNone(mid_data)
-        self.assertLess(mid_data, 70000)
-        assert mid_data != 0
-
-    def test_interval(self):
-        inter_data = utils.interval(datetime.time(16, 0, 40),
-                                    datetime.time(17, 0, 42))
-        self.assertIsInstance(inter_data, int)
-        self.assertIn(inter_data, [z for z in range(3500, 4500)])
-        self.assertLess(inter_data, 5000)
-        self.assertIsNotNone(inter_data)
-        self.assertNotAlmostEqual(inter_data, 1)
-
-    def test_mean(self):
-        mean_data = utils.mean([37435, 67])
-        self.assertIsInstance(mean_data, float)
-        self.assertLess(mean_data, 50000)
-        self.assertNotAlmostEqual(mean_data, 3)
-        self.assertIsNotNone(mean_data)
-=======
         self.assertEqual(mid_data, 61242)
         mid_data = utils.seconds_since_midnight(datetime.time(16, 7, 41))
         self.assertEqual(mid_data, 58061)
@@ -266,7 +216,27 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         self.assertEqual(mean_data, 31613.8)
         mean_data = utils.mean([])
         self.assertEqual(mean_data, 0)
->>>>>>> 8e9f1a211f3eae65f2eabbb8136192add006c466
+
+    def test_mean_date(self):
+        start_end_data = utils.mean_date([
+            39973,
+            35827,
+            31253,
+            32084,
+            40358,
+            36253,
+            36675
+        ])
+        self.assertEqual(start_end_data, '2008/11/22 11:41:10')
+        start_end_data = utils.mean_date([
+            33748,
+            36444,
+            35565,
+            32027,
+            40174,
+            38543,
+            43508])
+        self.assertEqual(start_end_data, '2008/11/22 12:02:14')
 
 
 def suite():

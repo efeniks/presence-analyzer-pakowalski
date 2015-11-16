@@ -8,10 +8,15 @@ from flask import redirect, abort
 
 from presence_analyzer.main import app
 from presence_analyzer.utils import (
-    jsonify, get_data, mean, group_by_weekday, interval, seconds_since_midnight,
+    jsonify,
+    get_data,
+    mean,
+    group_by_weekday,
+    interval,
+    seconds_since_midnight,
     mean_date
-
 )
+import datetime
 
 import logging
 log = logging.getLogger(__name__)  # pylint: disable=invalid-name
@@ -90,38 +95,30 @@ def presence_start_end_view(user_id):
         log.debug('User %s not found!', user_id)
         abort(404)
 
-    starts = data[user_id].keys()
-    ends = data[user_id].keys()
-    start_list = []
-    for start in starts:
+    start_list = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: []}
+    for start in data[user_id].keys():
         start1 = data[user_id][start]['start']
-        start_list.append(seconds_since_midnight(start1))
+        for i in range(0, 6):
+            if start.weekday() == i:
+                for j in range(1, 7):
+                    if i == j - 1:
+                        start_list[j].append(seconds_since_midnight(start1))
 
-    end_list = []
-    for end in ends:
+    end_list = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: []}
+    for end in data[user_id].keys():
         end1 = data[user_id][end]['end']
-        end_list.append(seconds_since_midnight(end1))
+        for i in range(0, 6):
+            if end.weekday() == i:
+                for j in range(1, 7):
+                    if i == j - 1:
+                        end_list[j].append(seconds_since_midnight(end1))
 
-    mean_start = mean_date(start_list)
-    mean_end = mean_date(end_list)
-    result = [["Mon", mean_start, mean_end],
-              ["Tue", mean_start, mean_end],
-              ["Wed", mean_start, mean_end],
-              ["Thu", mean_start, mean_end],
-              ["Fri", mean_start, mean_end],
+    result = [["Mon", mean_date(start_list[1]), mean_date(end_list[1])],
+              ["Tue", mean_date(start_list[2]), mean_date(end_list[2])],
+              ["Wed", mean_date(start_list[3]), mean_date(end_list[3])],
+              ["Thu", mean_date(start_list[4]), mean_date(end_list[4])],
+              ["Fri", mean_date(start_list[5]), mean_date(end_list[5])],
+              ["Sat", mean_date(start_list[6]), mean_date(end_list[6])],
+              ["Sun", mean_date(start_list[7]), mean_date(end_list[7])],
               ]
-    # result = {"Mon": {'Start': mean_start, 'End': mean_end},
-    #           "Tue": {'Start': mean_start, 'End': mean_end},
-    #           "Wed": {'Start': mean_start, 'End': mean_end},
-    #           "Thu": {'Start': mean_start, 'End': mean_end},
-    #           "Fri": {'Start': mean_start, 'End': mean_end},
-    #           }
-    # result = {'Weekday': [
-    #            ['Mon', {'Start': mean_start, 'End': mean_end}],
-    #            ['Tue', {'Start': mean_start, 'End': mean_end}],
-    #            ['Wed', {'Start': mean_start, 'End': mean_end}],
-    #            ['Thu', {'Start': mean_start, 'End': mean_end}],
-    #            ['Fri', {'Start': mean_start, 'End': mean_end}]
-    #         ]
-    #     }
     return result
