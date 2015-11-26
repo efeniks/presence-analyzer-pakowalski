@@ -1,0 +1,12 @@
+<%!
+    includes = [
+        '<link rel="stylesheet" type="text/css" href="static/css/normalize.css"/>',
+        '<link rel="stylesheet" type="text/css" href="static/css/page_style.css"/>',
+        '<script type="text/javascript" src="static/js/jquery.min.js"></script>',
+        '<script type="text/javascript" src="https://www.google.com/jsapi"></script>'
+    ]
+%>
+
+<%def name="static_files()">
+        ${caller.body()}
+</%def>

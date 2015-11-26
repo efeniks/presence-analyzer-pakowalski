@@ -2,10 +2,11 @@
 """
 Defines views.
 """
-
 import calendar
-from flask import abort, redirect, render_template
-from jinja2 import TemplateNotFound
+import mako
+import os
+from flask import abort, redirect
+from mako.lookup import TemplateLookup
 
 from presence_analyzer.main import app
 from presence_analyzer.utils import (
@@ -112,7 +113,13 @@ def render_all(temp_name):
     """
     Render templates.
     """
+    directory = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                             'templates/'
+                             )
+    mylookup = TemplateLookup([directory])
     try:
-        return render_template(temp_name, selected=temp_name)
-    except TemplateNotFound:
-        return render_template('notfound.html')
+        mytemplate = mylookup.get_template(temp_name)
+    except mako.exceptions.TopLevelLookupException:
+        mytemplate = mylookup.get_template('notfound.html')
+
+    return(mytemplate.render(selected=temp_name))
